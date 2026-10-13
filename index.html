@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="SetBud: clickable concept prototype of an in-app AI support assistant for WhatsApp Business users. Sample data.">
+<title>SetBud Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: prototype control bar on top, then a three-part app (nav | workspace | SetBud panel). SetBud owns the marigold accent; the app itself stays teal and quiet. */
+:root{
+  --bg:#F3F6F5; --surface:#FFFFFF; --sunk:#E9EEEC; --line:#D5DEDA;
+  --ink:#14211C; --muted:#5A6B65; --app:#0F6E64; --app-soft:#DDF0EC;
+  --bud:#C98200; --bud-ink:#5C3B00; --bud-soft:#FFF1D4; --bud-line:#F1D08A;
+  --ok:#1D7A46; --ok-soft:#DFF3E7; --warn:#A35A00; --warn-soft:#FDEBD3; --bad:#B42318; --bad-soft:#FCE4E1;
+  --bar:#14211C; --bar-ink:#E9F1EE;
+  --f-ui:"Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1513; --surface:#16201D; --sunk:#1D2925; --line:#2C3A35;
+  --ink:#E6EEEB; --muted:#9AAEA7; --app:#4FC1B2; --app-soft:#173A35;
+  --bud:#F2B53C; --bud-ink:#FFE2A6; --bud-soft:#3A2C0E; --bud-line:#6B5220;
+  --ok:#5BCB8A; --ok-soft:#143524; --warn:#F0A54A; --warn-soft:#3A2810; --bad:#F2877C; --bad-soft:#3D1A17;
+  --bar:#050908; --bar-ink:#D7E4DF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1513; --surface:#16201D; --sunk:#1D2925; --line:#2C3A35;
+  --ink:#E6EEEB; --muted:#9AAEA7; --app:#4FC1B2; --app-soft:#173A35;
+  --bud:#F2B53C; --bud-ink:#FFE2A6; --bud-soft:#3A2C0E; --bud-line:#6B5220;
+  --ok:#5BCB8A; --ok-soft:#143524; --warn:#F0A54A; --warn-soft:#3A2810; --bad:#F2877C; --bad-soft:#3D1A17;
+  --bar:#050908; --bar-ink:#D7E4DF; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.45}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--bud);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:var(--f-mono);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+
+/* prototype bar */
+.pbar{background:var(--bar);color:var(--bar-ink);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.pbar .tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{background:transparent;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--bar-ink)}
+.tab[aria-pressed="true"]{background:var(--bud);border-color:var(--bud);color:#1d1300;font-weight:700}
+.pbar .spacer{flex:1}
+.restart{background:none;border:none;color:var(--bar-ink);text-decoration:underline;font-size:13px;padding:4px}
+.note{background:var(--bud-soft);color:var(--bud-ink);border-bottom:1px solid var(--bud-line);padding:8px 16px;font-size:13px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.note b{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.step{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.8}
+
+/* app shell */
+.app{display:grid;grid-template-columns:200px minmax(0,1fr) 380px;min-height:calc(100vh - 90px)}
+.app.nobud{grid-template-columns:200px minmax(0,1fr)}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.ws{font-weight:800;font-size:15px;padding:4px 8px 2px}
+.ws small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.side hr{border:none;border-top:1px solid var(--line);margin:10px 0;width:100%}
+.nav{padding:7px 10px;border-radius:8px;color:var(--muted);font-weight:500}
+.nav.on{background:var(--app-soft);color:var(--app);font-weight:700}
+.main{padding:22px 24px 40px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.crumb{color:var(--muted);font-size:13px}
+.h1{font-size:22px;font-weight:800}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat.bad .v{color:var(--bad)} .stat.ok .v{color:var(--ok)}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.mute{background:var(--sunk);color:var(--muted)}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--muted);font-weight:600;font-size:12px}
+.tablewrap{overflow-x:auto}
+
+/* proactive banner */
+.banner{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:1px solid var(--bud-line);background:var(--bud-soft);border-radius:var(--r);padding:14px 16px}
+.banner.red{border-color:var(--bad);background:var(--bad-soft)}
+.budmark{width:34px;height:34px;border-radius:10px;background:var(--bud);color:#1d1300;display:grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.banner .txt{flex:1;min-width:220px}
+.banner .txt strong{display:block;font-size:15px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600}
+.btn.primary{background:var(--app);border-color:var(--app);color:#fff}
+.btn.bud{background:var(--bud);border-color:var(--bud);color:#1d1300;font-weight:700}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);text-decoration:underline;padding:8px 6px}
+:root[data-theme="dark"] .btn.primary{color:#04201C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#04201C}}
+
+/* SetBud panel */
+.bud{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 90px);position:sticky;top:0}
+.budhead{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.budhead .who{flex:1}
+.budhead .who b{display:block}
+.budhead .who span{font-size:12px;color:var(--muted)}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{border:none;background:none;padding:4px 10px;font-size:12px}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.close{border:none;background:none;font-size:18px;color:var(--muted);padding:2px 6px}
+.feed{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:100%;display:flex;flex-direction:column;gap:8px}
+.msg.user{align-self:flex-end;background:var(--app);color:#fff;border-radius:12px 12px 2px 12px;padding:8px 12px;max-width:85%}
+:root[data-theme="dark"] .msg.user{color:#04201C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .msg.user{color:#04201C}}
+.msg.bot{background:var(--sunk);border-radius:12px 12px 12px 2px;padding:10px 12px}
+.msg.bot p{margin:0}
+.evid{font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.evid::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.issue{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px}
+.issue .n{font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;grid-row:span 2}
+.issue .why{color:var(--muted);font-size:12px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.stack{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--line)}
+.stack i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--bud-line);background:var(--bud-soft);color:var(--bud-ink);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.opt input{margin-top:3px;accent-color:var(--app)}
+.opt small{display:block;color:var(--muted)}
+.preview{border:1px dashed var(--bud);border-radius:8px;padding:10px;background:var(--surface)}
+.preview ul{margin:6px 0 0;padding-left:18px}
+.cost{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:8px;padding-top:8px;font-weight:700}
+.budfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center}
+.budfoot input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit}
+.human{font-size:12px;color:var(--muted);padding:0 14px 10px}
+.human button{border:none;background:none;color:var(--app);text-decoration:underline;padding:0;font-size:12px;font-weight:600}
+.solved{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.solved span{flex:1;min-width:120px;font-weight:600}
+.handcard{border:1px solid var(--app);background:var(--app-soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--app);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.before{text-decoration:line-through;color:var(--bad)}
+.after{color:var(--ok);font-weight:600}
+
+/* upload */
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--surface)}
+.file{font-weight:700}
+.errline{border-left:4px solid var(--bad);background:var(--bad-soft);padding:10px 12px;border-radius:6px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.errline .t{flex:1;min-width:200px}
+
+/* agent console */
+.console{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px}
+.sum h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sum ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.sum section{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sum section:last-child{border-bottom:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:600}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--ink);font:inherit;resize:vertical}
+.sentok{background:var(--ok-soft);color:var(--ok);border-radius:8px;padding:10px 12px;font-weight:600}
+
+@media (max-width: 1100px){
+  .app,.app.nobud{grid-template-columns:minmax(0,1fr)}
+  .side{flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--line);padding:10px 16px}
+  .side hr,.ws small{display:none}
+  .bud{position:static;max-height:none;border-left:none;border-top:2px solid var(--bud)}
+  .console{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width: 640px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .main{padding:16px}
+  .nav{padding:5px 8px;font-size:13px}
+}
+@media (prefers-reduced-motion: no-preference){
+  .msg.bot{animation:rise .25s ease-out both}
+  @keyframes rise{from{transform:translateY(4px)}to{transform:none}}
+}
+</style>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="pbar" role="region" aria-label="Prototype controls">
+  <span class="tag">SetBud concept prototype · sample data</span>
+  <div class="tabs" id="tabs"></div>
+  <span class="spacer"></span>
+  <button class="restart" data-act="restart">Restart scenario</button>
+</div>
+<div class="note" id="note" aria-live="polite"></div>
+<div class="app" id="app">
+  <nav class="side" id="side" aria-label="App navigation"></nav>
+  <main class="main" id="main"></main>
+  <aside class="bud" id="bud" aria-label="SetBud assistant"></aside>
+</div>
+
+<script>
+const SCEN = [
+  {id:"B",  label:"B · Campaign not delivered"},
+  {id:"BE", label:"B · Edge: number limited by Meta"},
+  {id:"D",  label:"D · Contact upload failed"},
+  {id:"F",  label:"F · Agent hand-off view"}
+];
+const RATE_WA = 0.86, RATE_SMS = 0.20, WALLET = 4820;
+let s = null; s = fresh("B");
+function fresh(sc){ return {sc, step:0, lang:(s&&s.lang)||"en", fix:{resend:true,retry:true,remove:true,sms:false}, src:null, sent:false, from:"BE"}; }
+const t = (en, hi) => s.lang === "hi" && hi ? hi : en;
+const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const $ = id => document.getElementById(id);
+
+function go(sc, step){ if (sc !== s.sc){ const lang = s.lang; s = fresh(sc); s.lang = lang; } s.step = step; render(); }
+
+/* ---------- shared pieces ---------- */
+function side(active, agent){
+  if (agent) return `<div class="ws">Support console<small>Agent: Priya</small></div><hr>
+    ${["Queue","My tickets","Handed over by SetBud","Knowledge base"].map((n,i)=>`<div class="nav ${i===2?"on":""}">${n}</div>`).join("")}`;
+  return `<div class="ws">Kesar &amp; Co.<small>Sample D2C brand · Growth plan</small></div><hr>
+    ${["Dashboard","Campaigns","Contacts","Templates","Chatbots","Inbox","Wallet"].map(n=>`<div class="nav ${n===active?"on":""}">${n}</div>`).join("")}`;
+}
+function budShell(feed, opts={}){
+  return `<div class="budhead"><div class="budmark" aria-hidden="true">S</div>
+    <div class="who"><b>SetBud</b><span>${t("Setup and support help, reads your account","Setup aur support help, aapka account dekh kar")}</span></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-act="lang" data-v="en" aria-pressed="${s.lang==="en"}">English</button>
+      <button data-act="lang" data-v="hi" aria-pressed="${s.lang==="hi"}">Hinglish</button></div></div>
+    <div class="feed" id="feed">${feed}</div>
+    ${opts.noHuman?"":`<div class="human">${t("Prefer a person?","Insaan se baat karni hai?")} <button data-act="handoff">${t("Talk to support","Support se baat karein")}</button> · ${t("they'll see this whole chat","unhe yeh poori chat dikhegi")}</div>`}
+    <div class="budfoot"><input id="ask" aria-label="Ask SetBud" placeholder="${t("Ask about campaigns, templates, contacts…","Campaign, template, contacts ke baare mein poochhein…")}"><button class="btn" data-act="noop">${t("Send","Bhejein")}</button></div>`;
+}
+const bot = h => `<div class="msg bot">${h}</div>`;
+const user = h => `<div class="msg user">${h}</div>`;
+function solvedAsk(){
+  return `<div class="solved"><span>${t("Was this solved?","Kya problem solve hui?")}</span>
+    <button class="btn primary" data-act="solved-yes">${t("Yes","Haan")}</button>
+    <button class="btn" data-act="solved-no">${t("No, still stuck","Nahi, abhi bhi atka hoon")}</button></div>`;
+}
+function handoffCard(reason){
+  return bot(`<p>${t("I've passed this to a support specialist.","Maine yeh case support specialist ko de diya hai.")}</p>
+    <div class="handcard"><div class="row"><div class="avatar" aria-hidden="true">P</div><div><b>Priya, Support</b><br><span style="color:var(--muted);font-size:12px">${t("Usually replies in about 12 min today","Aaj aam taur par 12 min mein jawab")}</span></div></div>
+    <div style="font-size:13px">${t("She can see everything we checked, so you won't need to explain it again.","Unhe sab dikh raha hai jo humne check kiya, aapko dobara samjhana nahi padega.")}</div>
+    <div style="font-size:12px;color:var(--muted)">${t("Shared: ","Share kiya: ")}${reason}. ${t("Not shared: payment details.","Share nahi kiya: payment details.")}</div></div>
+    <button class="btn" data-act="to-agent">See what Priya sees →</button>`);
+}
+
+/* ---------- B: campaign not delivered ---------- */
+function campaignStats(after){
+  const delivered = after ? 1298 : 1260, failed = after ? 302 : 340;
+  return `<div class="stats">
+    <div class="stat"><div class="k">Sent</div><div class="v">1,600</div></div>
+    <div class="stat ok"><div class="k">Delivered</div><div class="v">${delivered.toLocaleString("en-IN")}</div></div>
+    <div class="stat ${after?"":"bad"}"><div class="k">${after?"Fixed or scheduled":"Not delivered"}</div><div class="v">${after?"128":failed}</div></div>
+    <div class="stat"><div class="k">Read</div><div class="v">${after?"1,012":"981"}</div></div></div>`;
+}
+function dashB(showBanner){
+  return `<div class="crumb">Dashboard</div><h1 class="h1">Good evening, Ritu</h1>
+    ${showBanner?`<div class="banner"><div class="budmark" aria-hidden="true">S</div>
+      <div class="txt"><strong>${t("340 of your 1,600 Diwali messages weren't delivered.","Aapke 1,600 Diwali messages mein se 340 deliver nahi hue.")}</strong>
+      ${t("I found 3 reasons. Want me to show you and fix what I can?","Mujhe 3 wajah mili hain. Dikhaun aur jo theek ho sakta hai woh kar doon?")}</div>
+      <button class="btn bud" data-act="b-open">${t("Check with SetBud","SetBud se check karein")}</button>
+      <button class="btn ghost" data-act="noop">${t("Later","Baad mein")}</button></div>`:""}
+    <div class="card"><div class="row" style="justify-content:space-between"><div><b>Diwali Offer 2026</b> <span class="pill ${s.step>=4?"ok":"warn"}">${s.step>=4?"Fixes applied":"Needs attention"}</span><br><span class="crumb">Template: diwali_offer_20 · Marketing · Sent 12 Oct, 7:00 PM</span></div></div></div>
+    ${campaignStats(s.step>=4)}
+    <div class="card"><b>Recent campaigns</b><div class="tablewrap"><table class="num"><thead><tr><th>Campaign</th><th>Sent</th><th>Delivered</th><th>Status</th></tr></thead><tbody>
+      <tr><td>Diwali Offer 2026</td><td>1,600</td><td>${s.step>=4?"1,298":"1,260"}</td><td><span class="pill ${s.step>=4?"ok":"warn"}">${s.step>=4?"Fixed":"340 failed"}</span></td></tr>
+      <tr><td>Order shipped updates</td><td>2,140</td><td>2,131</td><td><span class="pill ok">Healthy</span></td></tr>
+      <tr><td>Navratri restock</td><td>1,200</td><td>1,174</td><td><span class="pill ok">Healthy</span></td></tr></tbody></table></div></div>`;
+}
+function diagnosisB(){
+  return bot(`<p><b>${t("Here's why 340 messages didn't arrive:","340 messages kyun nahi pahunche:")}</b></p>
+    <div class="stack" role="img" aria-label="1,260 delivered, 212 not on WhatsApp, 88 held by Meta, 40 missing country code">
+      <i style="width:78.75%;background:var(--ok)"></i><i style="width:13.25%;background:var(--bad)"></i><i style="width:5.5%;background:var(--warn)"></i><i style="width:2.5%;background:var(--bud)"></i></div>
+    <div class="legend"><span><i class="sw" style="background:var(--ok)"></i>1,260 delivered</span><span><i class="sw" style="background:var(--bad)"></i>212</span><span><i class="sw" style="background:var(--warn)"></i>88</span><span><i class="sw" style="background:var(--bud)"></i>40</span></div>
+    <div class="issue"><span class="n" style="color:var(--bad)">212</span><b>${t("These numbers don't use WhatsApp","Yeh numbers WhatsApp par nahi hain")}</b>
+      <span class="why">${t("No one can receive WhatsApp messages on them.","In par WhatsApp message aa hi nahi sakta.")} <span class="mono">Meta code 131026</span></span></div>
+    <div class="issue"><span class="n" style="color:var(--warn)">88</span><b>${t("Meta held these back for today","Meta ne aaj ke liye inhe rok diya")}</b>
+      <span class="why">${t("These people got many offers from businesses this week, so Meta paused more marketing to them. Trying again tomorrow usually works.","In logon ko is hafte bahut offers mile, isliye Meta ne aur marketing rok di. Kal dobara bhejna aksar kaam karta hai.")} <span class="mono">131049</span></span></div>
+    <div class="issue"><span class="n" style="color:var(--bud)">40</span><b>${t("Missing the +91 country code","+91 country code missing hai")}</b>
+      <span class="why">${t("Saved as 10 digits, so WhatsApp couldn't find them.","10 digit mein save hain, isliye WhatsApp unhe dhoondh nahi paya.")}</span></div>
+    <div class="evid">${t("Based on Meta's delivery report for this campaign, 12 Oct","Is campaign ki Meta delivery report ke basis par, 12 Oct")}</div>
+    <div class="chips"><button class="chip" data-act="b-why">${t("Why does Meta hold messages?","Meta messages kyun rokta hai?")}</button></div>`);
+}
+function whyB(){
+  return user(t("Why does Meta hold messages?","Meta messages kyun rokta hai?")) + bot(`<p>${t("Meta limits how many marketing messages one person gets from all businesses combined, so people don't get spammed. It's not a penalty on your account, and your other messages (like order updates) are not affected.","Meta dekhta hai ki ek insaan ko saare businesses se kitne marketing messages mil rahe hain, taaki spam na ho. Yeh aapke account par penalty nahi hai, aur order updates jaise messages par asar nahi padta.")}</p>`);
+}
+function fixOptions(){
+  const f = s.fix;
+  const o = (k, title, sub) => `<label class="opt" for="fx-${k}"><input type="checkbox" id="fx-${k}" data-fix="${k}" ${f[k]?"checked":""}><span><b>${title}</b><small>${sub}</small></span></label>`;
+  return bot(`<p>${t("Here's what I can do. Pick what you want:","Main yeh kar sakta hoon. Jo chahiye select karein:")}</p>
+    ${o("resend", t("Add +91 to the 40 numbers and resend now","40 numbers mein +91 jodkar abhi dobara bhejein"), t("About ","Lagbhag ")+inr(40*RATE_WA))}
+    ${o("retry", t("Retry the 88 held messages tomorrow at 11:00 AM","88 ruke messages kal 11:00 AM par dobara bhejein"), t("About ","Lagbhag ")+inr(88*RATE_WA)+t(" · late morning has the best chance",""))}
+    ${o("remove", t("Move the 212 non-WhatsApp numbers to a separate list","212 non-WhatsApp numbers ko alag list mein daalein"), t("So future campaigns don't waste money on them","Taaki aage paisa barbaad na ho"))}
+    ${o("sms", t("Send the Diwali offer to those 212 by SMS instead","Un 212 ko Diwali offer SMS se bhejein"), t("About ","Lagbhag ")+inr(212*RATE_SMS)+t(" · uses your SMS credits",""))}
+    <button class="btn primary" data-act="b-review">${t("Review changes","Changes dekhein")}</button>`);
+}
+function previewB(){
+  const f = s.fix, items = []; let cost = 0;
+  if (f.resend){ items.push(t("Fix 40 numbers (+91) and resend the Diwali message","40 numbers theek karke Diwali message dobara bhejna")); cost += 40*RATE_WA; }
+  if (f.retry){ items.push(t("Schedule 88 messages for tomorrow, 11:00 AM","88 messages kal 11:00 AM ke liye schedule")); cost += 88*RATE_WA; }
+  if (f.remove) items.push(t("Create list “Not on WhatsApp” with 212 numbers","212 numbers ki “Not on WhatsApp” list banana"));
+  if (f.sms){ items.push(t("Send 212 SMS with the same offer","Same offer ke 212 SMS bhejna")); cost += 212*RATE_SMS; }
+  if (!items.length) return bot(`<p>${t("You haven't picked anything yet.","Aapne abhi kuch select nahi kiya.")}</p><button class="btn" data-act="b-back">${t("Go back","Wapas jaayein")}</button>`);
+  return bot(`<p>${t("Nothing changes until you confirm:","Aapke confirm karne tak kuch nahi badlega:")}</p>
+    <div class="preview"><b>${t("I will","Main yeh karunga")}</b><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul>
+    <div class="cost num"><span>${t("Estimated charge from wallet","Wallet se anumanit kharcha")}</span><span>${inr(cost)}</span></div>
+    <div style="font-size:12px;color:var(--muted)">${t("Wallet balance ","Wallet balance ")}${inr(WALLET)}</div></div>
+    <div class="row"><button class="btn primary" data-act="b-apply">${t("Apply changes","Changes lagu karein")}</button><button class="btn" data-act="b-back">${t("Edit","Badlein")}</button></div>`);
+}
+function resultB(){
+  const f = s.fix, lines = [];
+  if (f.resend) lines.push(t("40 resent: <b>38 delivered</b> so far","40 dobara bheje: abhi tak <b>38 deliver</b> hue"));
+  if (f.retry) lines.push(t("88 scheduled for tomorrow, 11:00 AM. I'll tell you here if any fail again.","88 kal 11:00 AM ke liye schedule. Fail hue toh main yahin bataunga."));
+  if (f.remove) lines.push(t("212 numbers moved to “Not on WhatsApp”","212 numbers “Not on WhatsApp” list mein"));
+  if (f.sms) lines.push(t("212 SMS sent","212 SMS bhej diye"));
+  return bot(`<p><b>${t("Done.","Ho gaya.")}</b></p><ul style="margin:0;padding-left:18px">${lines.map(l=>`<li>${l}</li>`).join("")}</ul>`);
+}
+function renderB(){
+  const st = s.step;
+  const notes = [
+    "Proactive start: SetBud spotted the failed delivery from Meta's report and raised it before the owner opened a ticket.",
+    "Diagnosis from evidence: every cause comes from a Meta error code, explained in plain language. Try the Hinglish toggle.",
+    "The user chooses the fix. Costs are shown before anything happens.",
+    "Confirm before acting: a preview and the wallet charge. This is the 'never act without asking' rule.",
+    "Fix applied and the campaign numbers updated. 'Was this solved?' feeds the resolution-rate and repeat-contact checks in the audit sheet.",
+    "Resolved without a human. This counts as one avoided ticket in the North Star metric."
+  ];
+  let feed = "";
+  if (st>=1) feed += diagnosisB();
+  if (st>=1 && s.why) feed += whyB();
+  if (st>=1) feed += user(t("Show me how to fix this","Kaise theek karein, dikhao"));
+  if (st>=2) feed += fixOptions();
+  if (st>=3) feed += previewB();
+  if (st>=4) feed += user(t("Apply changes","Changes lagu karein")) + resultB() + (st===4?solvedAsk():"");
+  if (st===5) feed += user(t("Yes","Haan")) + bot(`<p>${t("Great. Marked as solved. I'll keep an eye on tomorrow's retry.","Badhiya. Solved mark kar diya. Kal ke retry par nazar rakhunga.")}</p>`);
+  if (st===6) feed += user(t("No, still stuck","Nahi, abhi bhi atka hoon")) + handoffCard(t("this campaign's delivery report, the fixes applied and this chat","is campaign ki delivery report, kiye gaye fixes aur yeh chat"));
+  if (st===1) feed = feed.replace(user(t("Show me how to fix this","Kaise theek karein, dikhao")), "") + bot(`<button class="btn primary" data-act="b-fix">${t("Show me how to fix this","Kaise theek karein, dikhao")}</button>`);
+  return {nav:"Dashboard", main:dashB(st<4), bud: st>=1 ? budShell(feed) : null,
+    note: st===6 ? "Edge case: the user says it isn't solved, so SetBud hands over to a person with the full context." : notes[Math.min(st,5)],
+    stepText:`Step ${Math.min(st,5)+1} of 6`};
+}
+
+/* ---------- BE: edge case, number limited ---------- */
+function renderBE(){
+  const st = s.step;
+  const main = `<div class="crumb">Dashboard</div><h1 class="h1">Good evening, Ritu</h1>
+    <div class="banner red"><div class="budmark" aria-hidden="true">S</div><div class="txt"><strong>${t("Your Diwali campaign stopped at 600 of 1,600 messages.","Aapka Diwali campaign 1,600 mein se 600 par ruk gaya.")}</strong>${t("Meta has limited your number. I can explain what happened.","Meta ne aapke number ko limit kiya hai. Main samjha sakta hoon.")}</div>
+    ${st===0?`<button class="btn bud" data-act="be-open">${t("Check with SetBud","SetBud se check karein")}</button>`:""}</div>
+    <div class="card"><div class="kv"><dt>Phone number quality</dt><dd><span class="pill bad">Low</span> (was Medium on 10 Oct)</dd><dt>Daily sending limit</dt><dd>Limited by Meta</dd><dt>Blocks and reports this week</dt><dd class="num">47</dd></div></div>`;
+  let feed = "";
+  if (st>=1) feed += bot(`<p><b>${t("Meta lowered your number's quality rating to Low.","Meta ne aapke number ki quality rating Low kar di hai.")}</b></p>
+      <p>${t("47 people blocked or reported your messages this week, mostly after the Diwali offer. Meta has limited sending until the rating improves.","Is hafte 47 logon ne aapke messages block ya report kiye, zyada tar Diwali offer ke baad. Rating sudharne tak Meta ne sending limit kar di hai.")}</p>
+      <p>${t("This is Meta's decision. I can't reverse it, and I won't guess how long it will last.","Yeh Meta ka faisla hai. Main ise palat nahi sakta, aur kitna samay lagega iska andaaza nahi lagaunga.")}</p>
+      <div class="evid">${t("Based on Meta's quality rating history for your number","Aapke number ki Meta quality rating history ke basis par")}</div>
+      <p>${t("Because this affects your account with Meta, a support specialist should look at it with you.","Kyunki yeh Meta ke saath aapke account se juda hai, ek support specialist ko dekhna chahiye.")}</p>
+      ${st===1?`<button class="btn primary" data-act="be-hand">${t("Connect me to a specialist","Specialist se jodein")}</button>`:""}`);
+  if (st>=2) feed += user(t("Connect me to a specialist","Specialist se jodein")) + handoffCard(t("quality rating history, block and report counts, the stopped campaign and this chat","quality rating history, block/report count, ruka hua campaign aur yeh chat"));
+  const notes = ["Edge case: the problem is a Meta decision, not something SetBud can fix.",
+    "SetBud explains what happened with evidence and refuses to promise a timeline. It does not try to fix it.",
+    "Hand-off with context: the user is told who has the case, roughly when they'll reply, and exactly what was shared."];
+  return {nav:"Dashboard", main, bud: st>=1?budShell(feed,{noHuman:true}):null, note:notes[st], stepText:`Step ${st+1} of 3`};
+}
+
+/* ---------- D: contact upload ---------- */
+function renderD(){
+  const st = s.step;
+  const fixedRows = `<div class="tablewrap"><table class="num"><thead><tr><th>Row</th><th>Before</th><th>After</th></tr></thead><tbody>
+    <tr><td>14</td><td class="before mono">9876543210</td><td class="after mono">+91 98765 43210</td></tr>
+    <tr><td>88</td><td class="before mono">09812 345678</td><td class="after mono">+91 98123 45678</td></tr>
+    <tr><td>203</td><td class="mono">+91 99001 22334</td><td><span class="pill mute">${t("Duplicate of row 61, removed","Row 61 ka duplicate, hataya")}</span></td></tr></tbody></table></div>`;
+  let main = `<div class="crumb">Contacts › Import</div><h1 class="h1">Import contacts</h1>`;
+  if (st<4){
+    main += `<div class="drop"><div class="budmark" style="background:var(--sunk);color:var(--muted)" aria-hidden="true">CSV</div><div style="flex:1;min-width:180px"><span class="file">diwali_customers.csv</span><br><span class="crumb num">2,400 rows · uploaded just now</span></div></div>
+      <div class="errline"><div class="t"><b>${t("Upload stopped. 252 rows couldn't be read.","Upload ruk gaya. 252 rows padhi nahi ja sakin.")}</b><br><span class="crumb">${t("Phone numbers are in a format WhatsApp doesn't accept.","Phone numbers aise format mein hain jo WhatsApp nahi maanta.")}</span></div>
+      ${st===0?`<button class="btn bud" data-act="d-open">${t("Fix with SetBud","SetBud se theek karein")}</button>`:""}</div>`;
+  } else {
+    main += `<div class="card"><div class="row"><span class="pill ok">Imported</span><b>Diwali customers</b></div>
+      <div class="kv" style="margin-top:10px"><dt>Contacts added</dt><dd class="num">2,362</dd><dt>Needs review</dt><dd class="num">20 (${t("9-digit numbers","9 digit numbers")})</dd><dt>Consent source</dt><dd>${s.src==="checkout"?t("Website checkout, WhatsApp opt-in box","Website checkout, WhatsApp opt-in box"):t("Held: no marketing until consent is confirmed","Ruka hua: consent confirm hone tak marketing nahi")}</dd></div></div>`;
+  }
+  let feed = "";
+  if (st>=1) feed += bot(`<p><b>${t("I checked your file. 232 of the 252 rows are easy to fix:","Maine file check ki. 252 mein se 232 rows aasani se theek ho sakti hain:")}</b></p>
+      <div class="issue"><span class="n" style="color:var(--bud)">214</span><b>${t("Missing +91","+91 missing")}</b><span class="why">${t("I'll add it and remove leading zeros.","Main +91 jodunga aur aage ka 0 hataunga.")}</span></div>
+      <div class="issue"><span class="n" style="color:var(--muted)">18</span><b>${t("Duplicates","Duplicate")}</b><span class="why">${t("Same number appears twice; I'll keep the first.","Ek number do baar hai; pehla rakhunga.")}</span></div>
+      <div class="issue"><span class="n" style="color:var(--bad)">20</span><b>${t("Only 9 digits","Sirf 9 digit")}</b><span class="why">${t("I can't guess the missing digit, so I'll set these aside for you.","Missing digit main guess nahi kar sakta, inhe alag rakh dunga.")}</span></div>
+      <p style="font-size:13px">${t("Preview of the changes:","Changes ka preview:")}</p>${fixedRows}
+      ${st===1?`<button class="btn primary" data-act="d-fix">${t("Fix 232 rows","232 rows theek karein")}</button>`:""}`);
+  if (st>=2) feed += user(t("Fix 232 rows","232 rows theek karein")) + bot(`<p><b>${t("One more check before I import.","Import se pehle ek aur check.")}</b> ${t("Your file has no opt-in column. WhatsApp only allows marketing messages to people who agreed to hear from you, and messaging people who didn't can get your number limited.","Aapki file mein opt-in column nahi hai. WhatsApp sirf unhe marketing message bhejne deta hai jinhone haan kaha ho; bina consent bhejne se number limit ho sakta hai.")}</p>
+      <p>${t("Where did these contacts come from?","Yeh contacts kahan se aaye?")}</p>
+      ${st===2?`<div class="chips" style="flex-direction:column;align-items:stretch">
+        <button class="btn" data-act="d-src" data-v="checkout">${t("Website checkout with a WhatsApp opt-in box","Website checkout, WhatsApp opt-in box ke saath")}</button>
+        <button class="btn" data-act="d-src" data-v="bought">${t("A list I bought or someone shared","Khareedi hui ya kisi ki di hui list")}</button>
+        <button class="btn" data-act="d-src" data-v="unsure">${t("Not sure","Pakka nahi pata")}</button></div>`:""}`);
+  if (st>=3){
+    const ans = {checkout:t("Website checkout with a WhatsApp opt-in box","Website checkout, WhatsApp opt-in box ke saath"), bought:t("A list I bought or someone shared","Khareedi hui ya kisi ki di hui list"), unsure:t("Not sure","Pakka nahi pata")}[s.src];
+    feed += user(ans);
+    if (s.src==="checkout") feed += bot(`<p>${t("Good, I'll record that as the consent source. Ready to import 2,362 contacts to the list “Diwali customers”, with 20 in “Needs review”.","Theek hai, main ise consent source ke roop mein record karunga. 2,362 contacts “Diwali customers” list mein import karne ke liye taiyaar, 20 “Needs review” mein.")}</p>
+      ${st===3?`<button class="btn primary" data-act="d-import">${t("Import contacts","Contacts import karein")}</button>`:""}`);
+    else feed += bot(`<p>${t("Then I won't add them for marketing. I'll import them as “Consent not confirmed”: you can send order updates, but marketing campaigns will skip them until they opt in.","Toh main inhe marketing ke liye nahi jodunga. Inhe “Consent not confirmed” ke roop mein import karunga: order updates bhej sakte hain, par opt-in tak marketing campaigns inhe skip karenge.")}</p>
+      <p style="font-size:13px">${t("Tip: send a one-time message asking them to reply YES to get offers.","Tip: ek message bhejiye jisme YES reply karne ko kahein.")}</p>
+      ${st===3?`<button class="btn primary" data-act="d-import">${t("Import without marketing","Marketing ke bina import karein")}</button>`:""}`);
+  }
+  if (st>=4) feed += bot(`<p><b>${t("Imported.","Import ho gaya.")}</b> ${t("2,362 contacts added, 20 waiting in “Needs review”.","2,362 contacts jud gaye, 20 “Needs review” mein.")}</p>`) + (st===4?solvedAsk():"");
+  if (st===5) feed += user(t("Yes","Haan")) + bot(`<p>${t("Marked as solved.","Solved mark kar diya.")}</p>`);
+  if (st===6) feed += user(t("No, still stuck","Nahi, abhi bhi atka hoon")) + handoffCard(t("the file summary, the fixes and this chat","file summary, fixes aur yeh chat"));
+  const notes = ["Short flow: an upload error that usually becomes a ticket. The 'Fix with SetBud' button sits right on the error.",
+    "SetBud shows what it will change, row by row, and is honest about the 20 rows it can't fix.",
+    "Edge case: no opt-in column. SetBud stops before importing and asks where the contacts came from. Try 'A list I bought' to see the safe path.",
+    s.src==="checkout"?"Consent recorded, import ready.":"Safe path: contacts are imported but excluded from marketing, which protects the number's quality rating.",
+    "Imported. 'Was this solved?' closes the loop.", "Resolved without a human.", "Hand-off with context."];
+  return {nav:"Contacts", main, bud: st>=1?budShell(feed):null, note:notes[st], stepText:`Step ${Math.min(st,5)+1} of 6`};
+}
+
+/* ---------- F: agent view ---------- */
+function renderF(){
+  const V = {
+    BE:{title:"Kesar & Co.: number limited by Meta", pri:["bad","High priority · campaign stopped"], quality:"bad",
+      one:"Diwali campaign stopped at 600 of 1,600 because Meta lowered the number's quality rating to Low.",
+      checked:["Quality rating: Medium → Low on 12 Oct","47 blocks and reports this week, 39 within 24 h of the Diwali message","Template diwali_offer_20 is approved; not the cause"],
+      notDone:["Did not promise when the limit will lift","Did not pause or change any campaign"],
+      next:"Pause other marketing for 7 days, review the Diwali audience (39 blocks came from contacts added on 9 Oct), and file a quality review with Meta if needed.",
+      reply:"Hi Ritu, Priya here. I've looked at your number: Meta lowered its quality after 47 people blocked or reported the Diwali message. I'd suggest pausing marketing for a week while we review who received it. Can we do a 10-minute call today?"},
+    B:{title:"Diwali campaign: still not delivering after fixes", pri:["warn","Normal priority"], quality:"ok",
+      one:"SetBud fixed 40 numbers and scheduled 88 retries, but the customer says the campaign still isn't working.",
+      checked:["Meta report: 212 not on WhatsApp (131026), 88 held for marketing limits (131049), 40 missing +91","Customer approved: resend 40, retry 88 tomorrow 11:00 AM, move 212 to a separate list","38 of 40 resends delivered"],
+      notDone:["Did not send SMS (customer didn't choose it)","Did not change the template"],
+      next:"Ask what still looks wrong: the 2 undelivered resends, the scheduled retry, or something else in the campaign.",
+      reply:"Hi Ritu, Priya here. I can see SetBud fixed 40 numbers (38 delivered) and scheduled 88 for tomorrow. What still looks wrong to you? If it's the 2 resends that didn't arrive, I'll check those numbers now."},
+    D:{title:"Contact import: customer still stuck", pri:["warn","Normal priority"], quality:"ok",
+      one:"Imported 2,362 contacts after SetBud's fixes but says it's still not working.",
+      checked:["Fixed 214 numbers (+91), removed 18 duplicates","Set aside 20 nine-digit numbers","Asked about consent and recorded the customer's answer"],
+      notDone:["Did not guess the 20 incomplete numbers"],
+      next:"Ask which part isn't working: the list, a campaign, or the 20 set-aside rows.",
+      reply:"Hi Ritu, Priya here. I can see your 2,362 contacts are imported. Which part isn't working for you: the list itself, sending a campaign, or the 20 numbers we set aside?"}
+  };
+  const v = V[s.from] || V.BE;
+  const q = v.quality==="bad" ? '<span class="pill bad">Low</span>' : '<span class="pill ok">High</span>';
+  const main = `<div class="crumb">Handed over by SetBud › Ticket #48213</div>
+    <div class="row" style="justify-content:space-between"><h1 class="h1">${v.title}</h1><span class="pill ${v.pri[0]}">${v.pri[1]}</span></div>
+    <div class="console">
+      <div class="card sum">
+        <section><h3>Customer's problem in one line</h3><div>${v.one}</div></section>
+        <section><h3>What SetBud checked</h3><ul>${v.checked.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+        <section><h3>What SetBud did not do</h3><ul>${v.notDone.map(x=>`<li>${x}</li>`).join("")}</ul></section>
+        <section><h3>Suggested next step</h3><div>${v.next}</div></section>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div class="card"><b>Account at a glance</b><dl class="kv" style="margin-top:8px">
+          <dt>Plan</dt><dd>Growth</dd><dt>Number quality</dt><dd>${q}</dd>
+          <dt>Messaging tier</dt><dd>1K per day</dd><dt>Wallet</dt><dd class="num">${inr(WALLET)}</dd><dt>Customer since</dt><dd>Aug 2026 (2 months)</dd><dt>Earlier tickets</dt><dd>1 (template rejected, solved by SetBud)</dd></dl></div>
+        <div class="card"><b>Reply to Ritu</b>
+          ${s.sent?`<div class="sentok" style="margin-top:8px">Reply sent. Ritu sees it in the SetBud panel and by email.</div>`:`<label for="reply" class="crumb" style="display:block;margin:6px 0">Draft from SetBud, edit before sending</label>
+          <textarea id="reply">${v.reply}</textarea>
+          <div class="row" style="margin-top:8px"><button class="btn primary" data-act="f-send">Send reply</button><button class="btn" data-act="noop">View full chat</button></div>`}
+        </div>
+      </div></div>`;
+  return {nav:null, agent:true, main, bud:null,
+    note: s.sent ? "The agent replied in their first message, with no 'please share a screenshot' back-and-forth. This is why handled tickets take about 25% less time in the cost model."
+      : "Agent view: everything SetBud learned arrives as a summary, the account state, what it did and didn't do, and a draft reply. Each scenario's hand-off opens its own version of this screen.",
+    stepText: s.sent ? "Step 2 of 2" : "Step 1 of 2"};
+}
+
+/* ---------- render ---------- */
+function render(){
+  const r = {B:renderB, BE:renderBE, D:renderD, F:renderF}[s.sc]();
+  $("tabs").innerHTML = SCEN.map(x=>`<button class="tab" data-act="scen" data-v="${x.id}" aria-pressed="${x.id===s.sc}">${x.label}</button>`).join("");
+  $("note").innerHTML = `<b>What this shows</b><span>${r.note}</span><span class="step">${r.stepText}</span>`;
+  $("side").innerHTML = side(r.nav, r.agent);
+  $("main").innerHTML = r.main;
+  const bud = $("bud");
+  if (r.bud){ bud.hidden = false; bud.innerHTML = r.bud; $("app").classList.remove("nobud"); const f = $("feed"); if (f) f.scrollTop = f.scrollHeight;
+    if (matchMedia("(max-width: 1100px)").matches && render.last !== s.sc+s.step) bud.scrollIntoView({block:"start"}); }
+  else { bud.hidden = true; bud.innerHTML = ""; $("app").classList.add("nobud"); }
+  render.last = s.sc+s.step;
+}
+
+document.addEventListener("change", e => {
+  const k = e.target.dataset && e.target.dataset.fix;
+  if (k){ s.fix[k] = e.target.checked; }
+});
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act, v = el.dataset.v;
+  switch(a){
+    case "scen": go(v, 0); break;
+    case "restart": { const lang = s.lang; s = fresh(s.sc); s.lang = lang; render(); break; }
+    case "lang": s.lang = v; render(); break;
+    case "b-open": go("B",1); break;
+    case "b-why": s.why = true; render(); break;
+    case "b-fix": go("B",2); break;
+    case "b-review": go("B",3); break;
+    case "b-back": go("B",2); break;
+    case "b-apply": go("B",4); break;
+    case "be-open": go("BE",1); break;
+    case "be-hand": go("BE",2); break;
+    case "d-open": go("D",1); break;
+    case "d-fix": go("D",2); break;
+    case "d-src": s.src = v; go("D",3); break;
+    case "d-import": go("D",4); break;
+    case "solved-yes": s.step = 5; render(); break;
+    case "solved-no": s.step = 6; render(); break;
+    case "handoff":
+      if (s.sc==="B"){ s.step = 6; render(); }
+      else if (s.sc==="D"){ s.step = 6; render(); }
+      break;
+    case "to-agent": { const from = s.sc; const lang = s.lang; s = fresh("F"); s.lang = lang; s.from = from; render(); break; }
+    case "f-send": s.sent = true; render(); break;
+  }
+});
+render();
+</script>
+</body>
+</html>

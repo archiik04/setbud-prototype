@@ -191,12 +191,13 @@ textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:
 const SCEN = [
   {id:"B",  label:"B · Campaign not delivered"},
   {id:"BE", label:"B · Edge: number limited by Meta"},
+  {id:"A",  label:"A · Template rejected (user asks)"},
   {id:"D",  label:"D · Contact upload failed"},
   {id:"F",  label:"F · Agent hand-off view"}
 ];
 const RATE_WA = 0.86, RATE_SMS = 0.20, WALLET = 4820;
 let s = null; s = fresh("B");
-function fresh(sc){ return {sc, step:0, lang:(s&&s.lang)||"en", fix:{resend:true,retry:true,remove:true,sms:false}, src:null, sent:false, from:"BE"}; }
+function fresh(sc){ return {sc, step:0, lang:(s&&s.lang)||"en", fix:{resend:true,retry:true,remove:true,sms:false}, src:null, sent:false, from:"BE", path:null, typed:null}; }
 const t = (en, hi) => s.lang === "hi" && hi ? hi : en;
 const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
 const $ = id => document.getElementById(id);
@@ -218,7 +219,7 @@ function budShell(feed, opts={}){
       <button data-act="lang" data-v="hi" aria-pressed="${s.lang==="hi"}">Hinglish</button></div></div>
     <div class="feed" id="feed">${feed}</div>
     ${opts.noHuman?"":`<div class="human">${t("Prefer a person?","Insaan se baat karni hai?")} <button data-act="handoff">${t("Talk to support","Support se baat karein")}</button> · ${t("they'll see this whole chat","unhe yeh poori chat dikhegi")}</div>`}
-    <div class="budfoot"><input id="ask" aria-label="Ask SetBud" placeholder="${t("Ask about campaigns, templates, contacts…","Campaign, template, contacts ke baare mein poochhein…")}"><button class="btn" data-act="noop">${t("Send","Bhejein")}</button></div>`;
+    <div class="budfoot"><input id="ask" aria-label="Ask SetBud" placeholder="${t("Ask about campaigns, templates, contacts…","Campaign, template, contacts ke baare mein poochhein…")}"><button class="btn" data-act="ask">${t("Send","Bhejein")}</button></div>`;
 }
 const bot = h => `<div class="msg bot">${h}</div>`;
 const user = h => `<div class="msg user">${h}</div>`;
@@ -416,6 +417,18 @@ function renderF(){
       notDone:["Did not send SMS (customer didn't choose it)","Did not change the template"],
       next:"Ask what still looks wrong: the 2 undelivered resends, the scheduled retry, or something else in the campaign.",
       reply:"Hi Ritu, Priya here. I can see SetBud fixed 40 numbers (38 delivered) and scheduled 88 for tomorrow. What still looks wrong to you? If it's the 2 resends that didn't arrive, I'll check those numbers now."},
+    A:{title:"Template resubmitted: customer still stuck", pri:["warn","Normal priority"], quality:"ok",
+      one:"SetBud fixed and resubmitted “bhai_dooj_flash” (Utility → Marketing, ending fixed), but the customer says it's still not solved.",
+      checked:["Meta rejection: INCORRECT_CATEGORY, and a variable as the last word","Customer approved the rewrite and Marketing category","Resubmitted 13 Oct, status In review"],
+      notDone:["Did not change the offer wording beyond the ending","Did not promise approval"],
+      next:"Ask whether the concern is the review wait, the higher Marketing cost, or the wording.",
+      reply:"Hi Ritu, Priya here. Your Bhai Dooj template is back with Meta for review. What's still worrying you: the wait, the Marketing price, or the wording? Happy to help with any of them."},
+    AB:{title:"Refund request: ₹412 on 12 Oct", pri:["warn","Billing · normal priority"], quality:"ok",
+      one:"Customer wants a refund for ₹412 charged on 12 Oct after SetBud explained the breakdown.",
+      checked:["₹389 = 452 delivered marketing messages × ₹0.86","₹23 = 180 utility messages × ₹0.13","Charges match send logs; no duplicate charge found"],
+      notDone:["Did not promise or issue a refund","Did not change any charge"],
+      next:"Ask which send the customer thinks shouldn't be billed. Undelivered messages were not charged.",
+      reply:"Hi Ritu, Priya from billing here. The ₹412 covers 452 delivered Diwali messages and 180 order updates; undelivered messages weren't charged. Is there a specific send you think shouldn't have been billed? I'll check it right away."},
     D:{title:"Contact import: customer still stuck", pri:["warn","Normal priority"], quality:"ok",
       one:"Imported 2,362 contacts after SetBud's fixes but says it's still not working.",
       checked:["Fixed 214 numbers (+91), removed 18 duplicates","Set aside 20 nine-digit numbers","Asked about consent and recorded the customer's answer"],
@@ -450,9 +463,75 @@ function renderF(){
     stepText: s.sent ? "Step 2 of 2" : "Step 1 of 2"};
 }
 
+/* ---------- A: template rejected, user-initiated ---------- */
+function tplTable(){
+  const st = s.step, done = s.path==="tpl" && st>=2;
+  const rows = [
+    ["diwali_offer_20","Marketing",'<span class="pill ok">Approved</span>',"10 Oct"],
+    ["order_shipped","Utility",'<span class="pill ok">Approved</span>',"2 Sep"],
+    ["bhai_dooj_flash", done?"Marketing":"Utility", done?'<span class="pill warn">In review</span>':'<span class="pill bad">Rejected</span>', done?"Just now":"13 Oct"]];
+  return `<div class="crumb">Templates</div><h1 class="h1">Message templates</h1>
+    <div class="card"><div class="tablewrap"><table><thead><tr><th>Name</th><th>Category</th><th>Status</th><th>Updated</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="num">${r[3]}</td></tr>`).join("")}</tbody></table></div></div>
+    ${done?"":`<div class="crumb">bhai_dooj_flash was rejected by Meta. Ritu doesn't know why, so she opens SetBud and asks.</div>`}`;
+}
+function walletPage(){
+  return `<div class="crumb">Wallet</div><h1 class="h1">Wallet</h1>
+    <div class="stats"><div class="stat"><div class="k">Balance</div><div class="v num">${inr(WALLET)}</div></div><div class="stat"><div class="k">Spent yesterday</div><div class="v num">₹412</div></div></div>
+    <div class="card"><b>Yesterday, 12 Oct</b><div class="tablewrap"><table class="num"><thead><tr><th>Item</th><th>Messages</th><th>Rate</th><th>Amount</th></tr></thead><tbody>
+    <tr><td>Diwali Offer 2026 (marketing, delivered only)</td><td>452</td><td>₹0.86</td><td>₹389</td></tr>
+    <tr><td>Order shipped updates (utility)</td><td>180</td><td>₹0.13</td><td>₹23</td></tr>
+    <tr><td><b>Total</b></td><td></td><td></td><td><b>₹412</b></td></tr></tbody></table></div></div>`;
+}
+function bubble(text){ return `<div style="background:#DCF8C6;color:#111;border-radius:8px 8px 8px 2px;padding:8px 10px;font-size:13px;max-width:100%">${text}</div>`; }
+function renderA(){
+  const st = s.step;
+  const chips = `<div class="chips">
+      <button class="chip" data-act="a-ask" data-v="tpl">${t("My template got rejected","Mera template reject ho gaya")}</button>
+      <button class="chip" data-act="a-ask" data-v="bill">${t("Why was I charged ₹412 yesterday?","Kal ₹412 kyun kate?")}</button>
+      <button class="chip" data-act="a-ask" data-v="other">${t("How do I send to more people per day?","Roz zyada logon ko kaise bhejun?")}</button></div>`;
+  let feed = bot(`<p>${t("Hi Ritu. What do you need help with? You can type in your own words.","Namaste Ritu. Kis cheez mein madad chahiye? Apne shabdon mein likh sakti hain.")}</p>${(st===0 && !s.path)?chips:""}`);
+  if (s.typed) feed += user(s.typed);
+  if (s.path==="other") feed += bot(`<p>${t("Your daily limit (1,000 people) goes up automatically as you send to more people with good quality. That flow isn't part of this demo, so try one of these:","Aapki daily limit (1,000 log) achhi quality ke saath zyada bhejne par apne aap badhti hai. Yeh demo ka hissa nahi hai, inme se ek try karein:")}</p>${chips}`);
+  if (s.path==="tpl"){
+    if (!s.typed) feed += user(t("My template got rejected","Mera template reject ho gaya"));
+    feed += bot(`<p><b>${t("Meta rejected “bhai_dooj_flash” on 13 Oct for 2 reasons:","Meta ne 13 Oct ko “bhai_dooj_flash” 2 wajah se reject kiya:")}</b></p>
+      <div class="issue"><span class="n" style="color:var(--bad)">1</span><b>${t("Wrong category","Galat category")}</b><span class="why">${t("It was sent as Utility, but it's a discount offer. Offers must be Marketing.","Ise Utility mein bheja, par yeh discount offer hai. Offers Marketing mein jaate hain.")} <span class="mono">INCORRECT_CATEGORY</span></span></div>
+      <div class="issue"><span class="n" style="color:var(--bad)">2</span><b>${t("Message ends with a blank","Message ek blank par khatam hota hai")}</b><span class="why">${t("Meta doesn't allow a {{variable}} as the very last word.","Meta aakhri shabd ke roop mein {{variable}} allow nahi karta.")}</span></div>
+      <div class="evid">${t("From Meta's rejection notice for this template","Is template ke Meta rejection notice se")}</div>
+      <p style="font-size:13px"><b>${t("Before","Pehle")}</b></p>${bubble('Hi {{1}}, Bhai Dooj special! Flat 20% off on all gift hampers till Sunday. Use code {{2}}')}
+      <p style="font-size:13px"><b>${t("After (my suggestion)","Baad mein (mera sujhav)")}</b></p>${bubble('Hi {{1}}, Bhai Dooj special! Flat 20% off on all gift hampers till Sunday. Use code {{2}} at checkout. Reply STOP to opt out.')}
+      <div class="preview" style="font-size:13px">${t("Category: <b>Marketing</b>. Marketing messages cost about ₹0.86 each instead of ₹0.13, so this changes your campaign cost.","Category: <b>Marketing</b>. Marketing message lagbhag ₹0.86 ka padta hai, ₹0.13 nahi, isliye campaign ka kharcha badlega.")}</div>
+      ${st===1?`<div class="row"><button class="btn primary" data-act="a-submit">${t("Submit to Meta","Meta ko submit karein")}</button><button class="btn" data-act="noop">${t("Edit text","Text badlein")}</button></div>`:""}`);
+    if (st>=2) feed += user(t("Submit to Meta","Meta ko submit karein")) + bot(`<p><b>${t("Submitted.","Submit ho gaya.")}</b> ${t("Status: In review. Meta usually decides within a few hours. I'll tell you here when it's approved, and nothing is sent to customers until you start a campaign.","Status: In review. Meta aam taur par kuch ghanton mein faisla karta hai. Approve hone par main yahin bataunga; campaign shuru karne tak customers ko kuch nahi jaayega.")}</p>`) + (st===2?solvedAsk():"");
+    if (st===3) feed += user(t("Yes","Haan")) + bot(`<p>${t("Great. Marked as solved.","Badhiya. Solved mark kar diya.")}</p>`);
+    if (st===4) feed += user(t("No, still stuck","Nahi, abhi bhi atka hoon")) + handoffCard(t("Meta's rejection notice, the rewrite and this chat","Meta ka rejection notice, rewrite aur yeh chat"));
+  }
+  if (s.path==="bill"){
+    if (!s.typed) feed += user(t("Why was I charged ₹412 yesterday?","Kal ₹412 kyun kate?"));
+    feed += bot(`<p><b>${t("Here's the ₹412 from 12 Oct:","12 Oct ke ₹412 ka hisaab:")}</b></p>
+      <div class="issue"><span class="n">₹389</span><b>${t("Diwali Offer: 452 marketing messages","Diwali Offer: 452 marketing messages")}</b><span class="why">${t("₹0.86 each, charged only for delivered messages","₹0.86 har ek, sirf deliver hue messages ka")}</span></div>
+      <div class="issue"><span class="n">₹23</span><b>${t("Order shipped: 180 utility messages","Order shipped: 180 utility messages")}</b><span class="why">${t("₹0.13 each","₹0.13 har ek")}</span></div>
+      <div class="evid">${t("From your wallet history, 12 Oct","Aapki wallet history se, 12 Oct")}</div>
+      <p>${t("This matches your sends. If you think a charge is wrong or you want a refund, our billing team handles that. I can't change charges.","Yeh aapke bheje gaye messages se match karta hai. Agar charge galat lagta hai ya refund chahiye, toh billing team dekhti hai. Main charges badal nahi sakta.")}</p>
+      ${st===10?`<div class="row"><button class="btn" data-act="a-billok">${t("Makes sense, thanks","Samajh gaya, dhanyavaad")}</button><button class="btn primary" data-act="a-billhand">${t("I want a refund","Mujhe refund chahiye")}</button></div>`:""}`);
+    if (st===11) feed += user(t("I want a refund","Mujhe refund chahiye")) + handoffCard(t("the ₹412 breakdown, wallet history for 12 Oct and this chat","₹412 ka breakdown, 12 Oct ki wallet history aur yeh chat"));
+    if (st===12) feed += user(t("Makes sense, thanks","Samajh gaya, dhanyavaad")) + bot(`<p>${t("Glad that helped. Marked as solved.","Achha laga madad karke. Solved mark kar diya.")}</p>`);
+  }
+  const notes = {0:"User-initiated: Ritu opens SetBud herself. Pick a suggested question, or type your own (try “template rejected” or “why was I charged”).",
+    1:"Diagnosis from Meta's rejection notice in plain words, with a before/after rewrite and the cost impact of the category change. Submitting is the confirm step.",
+    2:"Resubmitted with a clear status and what happens next. No ticket raised for the highest-volume query type.",
+    3:"Resolved without a human.", 4:"Not solved, so SetBud hands over with context.",
+    10:"Edge case: money. SetBud explains the charge from wallet history but cannot change it, per the 'won't handle money' rule.",
+    11:"Refund request goes to a human with the breakdown attached.", 12:"Billing question answered without a human."};
+  const main = s.path==="bill" ? walletPage() : tplTable();
+  const stepText = s.path==="bill" ? `Billing edge case · step ${st===10?1:2} of 2` : `Step ${Math.min(st,3)+1} of 4`;
+  return {nav: s.path==="bill"?"Wallet":"Templates", main, bud: budShell(feed), note: notes[st] || notes[0], stepText};
+}
+
 /* ---------- render ---------- */
 function render(){
-  const r = {B:renderB, BE:renderBE, D:renderD, F:renderF}[s.sc]();
+  const r = {A:renderA, B:renderB, BE:renderBE, D:renderD, F:renderF}[s.sc]();
   $("tabs").innerHTML = SCEN.map(x=>`<button class="tab" data-act="scen" data-v="${x.id}" aria-pressed="${x.id===s.sc}">${x.label}</button>`).join("");
   $("note").innerHTML = `<b>What this shows</b><span>${r.note}</span><span class="step">${r.stepText}</span>`;
   $("side").innerHTML = side(r.nav, r.agent);
@@ -472,7 +551,7 @@ document.addEventListener("click", e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   const a = el.dataset.act, v = el.dataset.v;
   switch(a){
-    case "scen": go(v, 0); break;
+    case "scen": { const lang = s.lang; s = fresh(v); s.lang = lang; render(); break; }
     case "restart": { const lang = s.lang; s = fresh(s.sc); s.lang = lang; render(); break; }
     case "lang": s.lang = v; render(); break;
     case "b-open": go("B",1); break;
@@ -487,16 +566,36 @@ document.addEventListener("click", e => {
     case "d-fix": go("D",2); break;
     case "d-src": s.src = v; go("D",3); break;
     case "d-import": go("D",4); break;
-    case "solved-yes": s.step = 5; render(); break;
-    case "solved-no": s.step = 6; render(); break;
+    case "solved-yes": s.step = s.sc==="A" ? 3 : 5; render(); break;
+    case "solved-no": s.step = s.sc==="A" ? 4 : 6; render(); break;
     case "handoff":
       if (s.sc==="B"){ s.step = 6; render(); }
       else if (s.sc==="D"){ s.step = 6; render(); }
+      else if (s.sc==="A"){ if (s.path==="bill") s.step = 11; else if (s.path==="tpl") s.step = 4; render(); }
       break;
-    case "to-agent": { const from = s.sc; const lang = s.lang; s = fresh("F"); s.lang = lang; s.from = from; render(); break; }
+    case "a-ask": aAsk(v); break;
+    case "ask": { const i = $("ask"); if (i) freeAsk(i.value); break; }
+    case "a-submit": s.step = 2; render(); break;
+    case "a-billok": s.step = 12; render(); break;
+    case "a-billhand": s.step = 11; render(); break;
+    case "to-agent": { const from = s.sc==="A" && s.path==="bill" ? "AB" : s.sc; const lang = s.lang; s = fresh("F"); s.lang = lang; s.from = from; render(); break; }
     case "f-send": s.sent = true; render(); break;
   }
 });
+function aAsk(path, typed){
+  if (s.sc !== "A"){ const lang = s.lang; s = fresh("A"); s.lang = lang; }
+  s.path = path; s.typed = typed || null;
+  s.step = path==="tpl" ? 1 : path==="bill" ? 10 : 0;
+  render();
+}
+function freeAsk(text){
+  const q = (text||"").trim(); if (!q) return;
+  const low = q.toLowerCase();
+  const path = /templat|reject/.test(low) ? "tpl" : /charg|bill|paisa|kate|refund|wallet|₹/.test(low) ? "bill" : "other";
+  const lang = s.lang; s = fresh("A"); s.lang = lang;
+  aAsk(path, q);
+}
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "ask") freeAsk(e.target.value); });
 render();
 </script>
 </body>

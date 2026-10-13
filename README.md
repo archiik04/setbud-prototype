@@ -7,6 +7,7 @@ Built for the Cheerio Product Intern assignment (Assignment A). All data is samp
 ## Scenarios
 - **B: Campaign not delivered** (main flow): proactive alert, diagnosis from Meta error codes, user-chosen fixes, confirm before acting, "Was this solved?"
 - **B edge: number limited by Meta**: explains, makes no promises, hands over to a person
+- **A: Template rejected** (user asks): suggested questions or free text, rejection reason in plain words, before/after rewrite, resubmit; billing edge case where a refund goes to a human
 - **D: Contact upload failed**: one-click fix with preview, opt-in check before import
 - **F: Agent hand-off view**: summary, account state, what SetBud did and didn't do, draft reply
 

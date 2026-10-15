@@ -4,34 +4,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="SetBud: clickable concept prototype of an in-app AI support assistant for WhatsApp Business users. Sample data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23BD4E22%22/%3E%3Cstop%20offset%3D%22.58%22%20stop-color%3D%22%237E66BE%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%234B3387%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.5%204.5%29%20scale%28.96%29%22%3E%3Cpath%20d%3D%22M5%205.5h14a2%202%200%200%201%202%202v8a2%202%200%200%201-2%202h-7l-4%203.2v-3.2H5a2%202%200%200%201-2-2v-8a2%202%200%200%201%202-2z%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M12%2015.6v-3.4%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.7%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M12%2012.7c-2.9%200-4.3-1.7-4.3-4%202.7%200%204.3%201.5%204.3%204z%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M12%2011.5c0-2.5%201.5-4%204.3-4%200%202.5-1.6%204-4.3%204z%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%3C/svg%3E">
 <title>SetBud Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: prototype control bar on top, then a three-part app (nav | workspace | SetBud panel). SetBud owns the marigold accent; the app itself stays teal and quiet. */
+/* Layout: prototype control bar on top, then a three-part app (nav | workspace | SetBud panel). The app wears a deep purple; SetBud carries the orange-to-purple AI gradient. */
 :root{
-  --bg:#F3F6F5; --surface:#FFFFFF; --sunk:#E9EEEC; --line:#D5DEDA;
-  --ink:#14211C; --muted:#5A6B65; --app:#0F6E64; --app-soft:#DDF0EC;
-  --bud:#C98200; --bud-ink:#5C3B00; --bud-soft:#FFF1D4; --bud-line:#F1D08A;
-  --ok:#1D7A46; --ok-soft:#DFF3E7; --warn:#A35A00; --warn-soft:#FDEBD3; --bad:#B42318; --bad-soft:#FCE4E1;
-  --bar:#14211C; --bar-ink:#E9F1EE;
-  --f-ui:"Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --bg:#F6F5F4; --surface:#FFFFFF; --sunk:#F1F0EE; --line:#E8E4E2;
+  --ink:#1E1A24; --muted:#6B5F73; --app:#4B3387; --app-2:#7E66BE; --app-soft:#EFE9FA; --on-app:#FFFFFF;
+  --bud:#BD4E22; --bud-ink:#6A2A10; --bud-soft:#FBEEE7; --bud-line:#F0C9B5;
+  --ok:#1D7A46; --ok-soft:#DFF3E7; --warn:#A35A00; --warn-soft:#FDEBD3; --bad:#C0352B; --bad-soft:#FCE4E1;
+  --bar:#271F36; --bar-ink:#ECD8F3; --glow:rgba(170,143,228,.22); --shadow:0 1px 2px rgba(39,31,54,.05), 0 6px 20px rgba(39,31,54,.05);
+  --grad:linear-gradient(90deg,#BD4E22 0%,#7E66BE 36%,#4B3387 100%);
+  --f-ui:"DM Sans", "Segoe UI", system-ui, sans-serif;
+  --f-display:"Onest", "DM Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
-  --r:10px;
+  --r:16px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E1513; --surface:#16201D; --sunk:#1D2925; --line:#2C3A35;
-  --ink:#E6EEEB; --muted:#9AAEA7; --app:#4FC1B2; --app-soft:#173A35;
-  --bud:#F2B53C; --bud-ink:#FFE2A6; --bud-soft:#3A2C0E; --bud-line:#6B5220;
+  --bg:#141019; --surface:#1D1726; --sunk:#251E30; --line:#352B44;
+  --ink:#F1ECF6; --muted:#B3A6C2; --app:#A993E8; --app-2:#C3B3F0; --app-soft:#2C2242; --on-app:#160F24;
+  --bud:#EC8A5E; --bud-ink:#FFD9C7; --bud-soft:#3A2218; --bud-line:#6B3A26;
   --ok:#5BCB8A; --ok-soft:#143524; --warn:#F0A54A; --warn-soft:#3A2810; --bad:#F2877C; --bad-soft:#3D1A17;
-  --bar:#050908; --bar-ink:#D7E4DF; color-scheme:dark}}
+  --bar:#0B0810; --bar-ink:#ECD8F3; --glow:rgba(126,102,190,.18); --shadow:none; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E1513; --surface:#16201D; --sunk:#1D2925; --line:#2C3A35;
-  --ink:#E6EEEB; --muted:#9AAEA7; --app:#4FC1B2; --app-soft:#173A35;
-  --bud:#F2B53C; --bud-ink:#FFE2A6; --bud-soft:#3A2C0E; --bud-line:#6B5220;
+  --bg:#141019; --surface:#1D1726; --sunk:#251E30; --line:#352B44;
+  --ink:#F1ECF6; --muted:#B3A6C2; --app:#A993E8; --app-2:#C3B3F0; --app-soft:#2C2242; --on-app:#160F24;
+  --bud:#EC8A5E; --bud-ink:#FFD9C7; --bud-soft:#3A2218; --bud-line:#6B3A26;
   --ok:#5BCB8A; --ok-soft:#143524; --warn:#F0A54A; --warn-soft:#3A2810; --bad:#F2877C; --bad-soft:#3D1A17;
-  --bar:#050908; --bar-ink:#D7E4DF; color-scheme:dark}
+  --bar:#0B0810; --bar-ink:#ECD8F3; --glow:rgba(126,102,190,.18); --shadow:none; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.45}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -89,8 +92,6 @@ th{color:var(--muted);font-weight:600;font-size:12px}
 .btn.primary{background:var(--app);border-color:var(--app);color:#fff}
 .btn.bud{background:var(--bud);border-color:var(--bud);color:#1d1300;font-weight:700}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--muted);text-decoration:underline;padding:8px 6px}
-:root[data-theme="dark"] .btn.primary{color:#04201C}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#04201C}}
 
 /* SetBud panel */
 .bud{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-width:0;max-height:calc(100vh - 90px);position:sticky;top:0}
@@ -105,8 +106,6 @@ th{color:var(--muted);font-weight:600;font-size:12px}
 .feed{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 .msg{max-width:100%;display:flex;flex-direction:column;gap:8px}
 .msg.user{align-self:flex-end;background:var(--app);color:#fff;border-radius:12px 12px 2px 12px;padding:8px 12px;max-width:85%}
-:root[data-theme="dark"] .msg.user{color:#04201C}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .msg.user{color:#04201C}}
 .msg.bot{background:var(--sunk);border-radius:12px 12px 12px 2px;padding:10px 12px}
 .msg.bot p{margin:0}
 .evid{font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:center}
@@ -170,12 +169,59 @@ textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:
   .msg.bot{animation:rise .25s ease-out both}
   @keyframes rise{from{transform:translateY(4px)}to{transform:none}}
 }
+
+/* brand layer */
+body{background:radial-gradient(700px 360px at 92% -8%, var(--glow), transparent 70%), radial-gradient(520px 300px at -6% 18%, var(--glow), transparent 70%), var(--bg);background-attachment:fixed}
+.h1,.ws,.budhead .who b,.stat .v,.banner .txt strong,.sum h3,.card > b{font-family:var(--f-display);letter-spacing:-.01em}
+.h1{font-size:26px;font-weight:600}
+.card,.stat,.drop{border-radius:var(--r);box-shadow:var(--shadow)}
+.stat .v{font-weight:600}
+.btn{border-radius:40px;padding:8px 16px}
+.btn.primary{background:var(--app);border-color:var(--app);color:var(--on-app)}
+.btn.primary:hover{background:var(--app-2);border-color:var(--app-2)}
+.btn.bud{background:var(--grad);border:none;color:#fff;box-shadow:0 4px 14px rgba(126,102,190,.35)}
+.msg.user{background:var(--app);color:var(--on-app);border-radius:16px 16px 4px 16px}
+.msg.bot{border-radius:16px 16px 16px 4px}
+.budmark{background:var(--grad);color:#fff;border-radius:12px;font-family:var(--f-display)}
+.banner{border:1.5px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box, var(--grad) border-box;border-radius:var(--r);box-shadow:var(--shadow)}
+.banner.red{background:linear-gradient(var(--bad-soft),var(--bad-soft)) padding-box, linear-gradient(90deg,var(--bad),var(--bud)) border-box}
+.tab{border-radius:40px;border-color:rgba(236,216,243,.28)}
+.tab[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+.pbar .tag{color:var(--bar-ink)}
+.note{background:var(--app-soft);color:var(--ink);border-bottom:1px solid var(--line)}
+.note b{color:var(--app)}
+.side{background:color-mix(in srgb, var(--surface) 82%, transparent);backdrop-filter:blur(8px)}
+.nav.on{background:var(--app-soft);color:var(--app)}
+.bud{border-left:none;box-shadow:-1px 0 0 var(--line)}
+.budhead{position:relative}
+.budhead::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--grad)}
+.chip{border-radius:40px;border-color:var(--line);background:var(--surface);color:var(--app)}
+.chip:hover{border-color:var(--app-2)}
+.issue,.opt,.solved,.preview{border-radius:12px}
+.preview{border-color:var(--app-2)}
+.handcard{border-radius:14px;border-color:var(--app-2)}
+.avatar{background:var(--app);color:var(--on-app)}
+.lang button[aria-pressed="true"]{background:var(--app);color:var(--on-app)}
+.opt input{accent-color:var(--app)}
+.stack{height:10px}
+.budfoot input{border-radius:40px;padding:9px 14px}
+@media (max-width: 1100px){.bud{border-top:none;box-shadow:0 -1px 0 var(--line)}}
+
+/* logo */
+.budmark{display:grid;place-items:center;background:linear-gradient(135deg,#BD4E22 0%,#7E66BE 58%,#4B3387 100%)}
+.budmark svg{display:block}
+.budmark.sm{width:28px;height:28px;border-radius:9px}
+.brand{display:flex;align-items:center;gap:8px;padding-right:6px;margin-right:2px;border-right:1px solid rgba(236,216,243,.18)}
+.wm{font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:-.02em}
+.wm span{background:linear-gradient(90deg,#F08A5D,#B9A4F0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.budhead .who b.wm{font-size:16px;display:block}
+.budhead .who b.wm span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 </style>
 <style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
 <body>
 <div class="pbar" role="region" aria-label="Prototype controls">
-  <span class="tag">SetBud concept prototype · sample data</span>
+  <div class="brand"><span class="budmark sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="62%" height="62%" fill="none" aria-hidden="true"><path d="M5 5.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 3.2v-3.2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 15.6v-3.4" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/><path d="M12 12.7c-2.9 0-4.3-1.7-4.3-4 2.7 0 4.3 1.5 4.3 4z" fill="#fff"/><path d="M12 11.5c0-2.5 1.5-4 4.3-4 0 2.5-1.6 4-4.3 4z" fill="#fff"/></svg></span><span class="wm">Set<span>Bud</span></span></div>
   <div class="tabs" id="tabs"></div>
   <span class="spacer"></span>
   <button class="restart" data-act="restart">Restart scenario</button>
@@ -188,6 +234,7 @@ textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:
 </div>
 
 <script>
+const MARK = '<svg viewBox="0 0 24 24" width="62%" height="62%" fill="none" aria-hidden="true"><path d="M5 5.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 3.2v-3.2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 15.6v-3.4" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/><path d="M12 12.7c-2.9 0-4.3-1.7-4.3-4 2.7 0 4.3 1.5 4.3 4z" fill="#fff"/><path d="M12 11.5c0-2.5 1.5-4 4.3-4 0 2.5-1.6 4-4.3 4z" fill="#fff"/></svg>';
 const SCEN = [
   {id:"B",  label:"B · Campaign not delivered"},
   {id:"BE", label:"B · Edge: number limited by Meta"},
@@ -212,8 +259,8 @@ function side(active, agent){
     ${["Dashboard","Campaigns","Contacts","Templates","Chatbots","Inbox","Wallet"].map(n=>`<div class="nav ${n===active?"on":""}">${n}</div>`).join("")}`;
 }
 function budShell(feed, opts={}){
-  return `<div class="budhead"><div class="budmark" aria-hidden="true">S</div>
-    <div class="who"><b>SetBud</b><span>${t("Setup and support help, reads your account","Setup aur support help, aapka account dekh kar")}</span></div>
+  return `<div class="budhead"><div class="budmark" aria-hidden="true">${MARK}</div>
+    <div class="who"><b class="wm">Set<span>Bud</span></b><span>${t("Setup and support help, reads your account","Setup aur support help, aapka account dekh kar")}</span></div>
     <div class="lang" role="group" aria-label="Language">
       <button data-act="lang" data-v="en" aria-pressed="${s.lang==="en"}">English</button>
       <button data-act="lang" data-v="hi" aria-pressed="${s.lang==="hi"}">Hinglish</button></div></div>
@@ -247,7 +294,7 @@ function campaignStats(after){
 }
 function dashB(showBanner){
   return `<div class="crumb">Dashboard</div><h1 class="h1">Good evening, Ritu</h1>
-    ${showBanner?`<div class="banner"><div class="budmark" aria-hidden="true">S</div>
+    ${showBanner?`<div class="banner"><div class="budmark" aria-hidden="true">${MARK}</div>
       <div class="txt"><strong>${t("340 of your 1,600 Diwali messages weren't delivered.","Aapke 1,600 Diwali messages mein se 340 deliver nahi hue.")}</strong>
       ${t("I found 3 reasons. Want me to show you and fix what I can?","Mujhe 3 wajah mili hain. Dikhaun aur jo theek ho sakta hai woh kar doon?")}</div>
       <button class="btn bud" data-act="b-open">${t("Check with SetBud","SetBud se check karein")}</button>
@@ -336,7 +383,7 @@ function renderB(){
 function renderBE(){
   const st = s.step;
   const main = `<div class="crumb">Dashboard</div><h1 class="h1">Good evening, Ritu</h1>
-    <div class="banner red"><div class="budmark" aria-hidden="true">S</div><div class="txt"><strong>${t("Your Diwali campaign stopped at 600 of 1,600 messages.","Aapka Diwali campaign 1,600 mein se 600 par ruk gaya.")}</strong>${t("Meta has limited your number. I can explain what happened.","Meta ne aapke number ko limit kiya hai. Main samjha sakta hoon.")}</div>
+    <div class="banner red"><div class="budmark" aria-hidden="true">${MARK}</div><div class="txt"><strong>${t("Your Diwali campaign stopped at 600 of 1,600 messages.","Aapka Diwali campaign 1,600 mein se 600 par ruk gaya.")}</strong>${t("Meta has limited your number. I can explain what happened.","Meta ne aapke number ko limit kiya hai. Main samjha sakta hoon.")}</div>
     ${st===0?`<button class="btn bud" data-act="be-open">${t("Check with SetBud","SetBud se check karein")}</button>`:""}</div>
     <div class="card"><div class="kv"><dt>Phone number quality</dt><dd><span class="pill bad">Low</span> (was Medium on 10 Oct)</dd><dt>Daily sending limit</dt><dd>Limited by Meta</dd><dt>Blocks and reports this week</dt><dd class="num">47</dd></div></div>`;
   let feed = "";

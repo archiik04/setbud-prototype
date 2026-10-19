@@ -12,3 +12,5 @@ Built for the Cheerio Product Intern assignment (Assignment A). All data is samp
 - **F: Agent hand-off view**: summary, account state, what SetBud did and didn't do, draft reply
 
 Single static `index.html`, no build step.
+
+Live demo: https://setbud-prototype.vercel.app/
